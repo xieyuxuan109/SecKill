@@ -1,0 +1,12 @@
+Kafka:
+  Name: order-consumer
+  Group: order-consumer-group
+  Brokers:
+    - 10.17.220.221:9092
+  Topic: seckill_orders
+
+OrderRpc:
+  Etcd:
+    Hosts:
+      - 10.17.220.221:2379//修改ip
+    Key: order.rpc

@@ -1,0 +1,37 @@
+syntax = "v1"
+
+type (
+	CreateActReq {
+		Name    string `json:"name"`
+		Stock   int    `json:"stock"`
+		StartAt int64  `json:"startAt"`
+		EndAt   int64  `json:"endAt"`
+	}
+	CreateActResp  {}
+	SeckillReq {
+		ActivityId int64 `json:"activityId"`
+	}
+	SeckillResp {
+		OrderNo string `json:"orderNo"`
+		Message string `json:"message"`
+	}
+	OrderStatusReq {
+		OrderNo string `json:"orderNo"`
+	}
+	OrderStatusResp {
+		OrderNo string `json:"orderNo"`
+		Status  int32  `json:"status"`
+	}
+)
+
+service api {
+	@handler CreateAct
+	post /api/act/create (CreateActReq) returns (CreateActResp)
+
+	@handler Seckill
+	post /api/seckill (SeckillReq) returns (SeckillResp)
+
+	@handler OrderStatus
+	get /api/order/status (OrderStatusReq) returns (OrderStatusResp)
+}
+
