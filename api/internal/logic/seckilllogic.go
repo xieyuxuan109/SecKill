@@ -53,7 +53,7 @@ func (l *SeckillLogic) Seckill(req *types.SeckillReq) (resp *types.SeckillResp, 
 		return nil, fmt.Errorf("您已参与过该活动")
 	}
 
-	// 3. 原子扣减库存 (Lua)
+	// 3. 原子扣减库存
 	stockKey := fmt.Sprintf("stock:act:%d", actId)
 	luaScript := `
         local stock = redis.call('DECR', KEYS[1])

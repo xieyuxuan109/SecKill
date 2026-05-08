@@ -2,7 +2,7 @@ Name: order.rpc
 ListenOn: 0.0.0.0:8081
 Etcd:
   Hosts:
-    - 10.17.220.221:2379
+    - localhost:2379//根据需求改ip
   Key: order.rpc
 Mysql:
-  DataSource: root:123456@tcp(10.17.220.221:3306)/seckill?charset=utf8mb4&parseTime=true&loc=Asia%2FShanghai
+  DataSource: root:123456@tcp(localhost:3306)/seckill?charset=utf8mb4&parseTime=true&loc=Asia%2FShanghai
