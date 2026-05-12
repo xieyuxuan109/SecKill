@@ -3,21 +3,21 @@ Host: 0.0.0.0
 Port: 8888
 
 Redis:
-  Host: localhost:6379//修改ip
+  Host: 10.17.220.221:6379
   Pass: ""
 
 Kafka:
   Name: order-pusher
   Group: order-group
   Brokers:
-    - localhost:9092//修改ip
+    - 10.17.220.221:9092
   Topic: seckill_orders
 
 OrderRpc:
   Etcd:
     Hosts:
-      - localhost:2379//修改ip
+      - 10.17.220.221:2379
     Key: order.rpc
 
 Mysql:
-  DataSource: root:123456@tcp(localhost:3306)/seckill?charset=utf8mb4&parseTime=true//修改ip
+  DataSource: root:123456@tcp(10.17.220.221:3306)/seckill?charset=utf8mb4&parseTime=true

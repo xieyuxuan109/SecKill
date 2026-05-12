@@ -40,11 +40,17 @@ func (l *SeckillLogic) Seckill(req *types.SeckillReq) (resp *types.SeckillResp, 
 	timeKey := fmt.Sprintf("act:time:%d", actId)
 	startStr, _ := l.svcCtx.Redis.Hget(timeKey, "start")
 	endStr, _ := l.svcCtx.Redis.Hget(timeKey, "end")
-	now := time.Now().Unix()
+	if startStr == "" || endStr == "" {
+		return nil, fmt.Errorf("活动时间未配置")
+	}
+	now := time.Now().UnixMilli()
 	start, _ := strconv.ParseInt(startStr, 10, 64)
 	end, _ := strconv.ParseInt(endStr, 10, 64)
-	if now < start || now > end {
-		return nil, fmt.Errorf("不在活动时间内")
+	if now < start {
+		return nil, fmt.Errorf("活动尚未开始")
+	}
+	if now > end {
+		return nil, fmt.Errorf("活动已结束")
 	}
 
 	// 2. 防重复下单

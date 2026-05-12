@@ -44,9 +44,9 @@ func (l *CreateActLogic) CreateAct(req *types.CreateActReq) (resp *types.CreateA
 	// 2. 初始化 Redis 库存
 	stockKey := fmt.Sprintf("stock:act:%d", actId)
 	l.svcCtx.Redis.Set(stockKey, strconv.Itoa(req.Stock))
-	// 3. 存储活动时间
+	// 3. 存储活动时间（转换为毫秒级）
 	timeKey := fmt.Sprintf("act:time:%d", actId)
-	l.svcCtx.Redis.Hset(timeKey, "start", strconv.FormatInt(req.StartAt, 10))
-	l.svcCtx.Redis.Hset(timeKey, "end", strconv.FormatInt(req.EndAt, 10))
+	l.svcCtx.Redis.Hset(timeKey, "start", strconv.FormatInt(req.StartAt*1000, 10))
+	l.svcCtx.Redis.Hset(timeKey, "end", strconv.FormatInt(req.EndAt*1000, 10))
 	return &types.CreateActResp{}, nil
 }

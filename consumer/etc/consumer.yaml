@@ -2,11 +2,11 @@ Kafka:
   Name: order-consumer
   Group: order-consumer-group
   Brokers:
-    - localhost:9092//修改ip
+    - 10.17.220.221:9092
   Topic: seckill_orders
 
 OrderRpc:
   Etcd:
     Hosts:
-      - localhost:2379//修改ip
+      - 10.17.220.221:2379
     Key: order.rpc

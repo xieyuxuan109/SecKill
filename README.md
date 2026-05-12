@@ -18,7 +18,7 @@
 - 订单管理：异步创建订单，支持订单状态查询
 - 消息队列：Kafka 异步解耦秒杀请求
 - 防重复下单：Redis 标记用户已购买状态
-- 活动时间校验：精确控制秒杀开始和结束时间
+- 活动时间校验：精确控制秒杀开始和结束时间（毫秒级精度）
 
 ## 快速开始
 
@@ -31,7 +31,7 @@
 
 ```bash
 cd SecKill
-docker-compose up -d
+docker compose up -d
 ```
 
 ### 启动服务
@@ -78,9 +78,19 @@ go run api.go -f etc/api.yaml
 {
     "name": "限时秒杀",
     "stock": 100,
-    "startAt": 1714732800,
-    "endAt": 1714736400
+    "startAt": 1747200000,
+    "endAt": 1747286400
 }
+```
+
+说明：`startAt` 和 `endAt` 为秒级时间戳。可使用以下命令获取当前时间戳：
+
+```bash
+# 获取当前时间戳
+date +%s
+
+# 获取24小时后的时间戳
+echo $(( $(date +%s) + 86400 ))
 ```
 
 ### 参与秒杀
@@ -105,7 +115,7 @@ go run api.go -f etc/api.yaml
 
 ```json
 {
-    "orderNo": "1714732800123456",
+    "orderNo": "1747200000123456",
     "message": "排队中，请稍后查询订单状态"
 }
 ```
@@ -124,7 +134,7 @@ go run api.go -f etc/api.yaml
 
 ```json
 {
-    "orderNo": "1714732800123456",
+    "orderNo": "1747200000123456",
     "status": 1
 }
 ```
@@ -153,8 +163,8 @@ go run api.go -f etc/api.yaml
     "name": "限时秒杀",
     "status": 1,
     "stock": 95,
-    "startAt": 1714732800,
-    "endAt": 1714736400
+    "startAt": 1747200000,
+    "endAt": 1747286400
 }
 ```
 
@@ -202,6 +212,8 @@ SecKill/
 │   ├── orderclient/       # RPC 客户端
 │   ├── order.proto        # Proto 定义
 │   └── order.go           # 入口文件
+├── test/                   # 测试脚本
+│   └── load_test.py       # 压测脚本
 ├── sql/                   # 数据库初始化脚本
 ├── dockercompose.yaml     # Docker 配置
 ├── go.mod                 # 根模块
@@ -277,8 +289,8 @@ Mysql:
 | id | bigint | 主键，自增 |
 | name | varchar(100) | 活动名称 |
 | stock | int | 库存数量 |
-| start_at | bigint | 开始时间戳 |
-| end_at | bigint | 结束时间戳 |
+| start_at | bigint | 开始时间戳（秒） |
+| end_at | bigint | 结束时间戳（秒） |
 
 ### seckill_order 表
 
@@ -294,7 +306,7 @@ Mysql:
 ## 秒杀流程
 
 1. 用户请求 `/api/seckill` 参与秒杀
-2. 系统校验活动是否存在、时间是否有效
+2. 系统校验活动是否存在、时间是否有效（毫秒级精度）
 3. 检查用户是否已参与过该活动（防重复）
 4. Redis 原子扣减库存（Lua 脚本）
 5. 记录用户已购买标记
@@ -302,9 +314,60 @@ Mysql:
 7. Consumer 消费消息，调用 Order RPC 创建订单
 8. 用户通过 `/api/order/status` 查询订单状态
 
+## 测试
+
+### 单元测试
+
+运行所有单元测试：
+
+```bash
+cd api
+go test -v ./internal/logic/...
+```
+
+时间校验测试用例：
+
+| 测试场景 | 输入 | 预期结果 |
+| :--- | :--- | :--- |
+| 活动进行中 | now=10000, start=0, end=20000 | 通过 |
+| 活动尚未开始 | now=0, start=10000, end=20000 | 返回错误"活动尚未开始" |
+| 活动已结束 | now=30000, start=0, end=20000 | 返回错误"活动已结束" |
+| 边界测试-刚好开始 | now=10000, start=10000, end=20000 | 通过 |
+| 边界测试-刚好结束 | now=20000, start=0, end=20000 | 通过 |
+
+### 压力测试
+
+使用压测脚本进行高并发压测：
+
+```bash
+cd SecKill
+python test/load_test.py
+```
+
+压测配置参数：
+
+| 参数 | 默认值 | 说明 |
+| :--- | :--- | :--- |
+| BASE_URL | http://localhost:8888 | API 服务地址 |
+| ACTIVITY_ID | 1 | 活动ID |
+| THREAD_COUNT | 50 | 并发线程数 |
+| REQUESTS_PER_THREAD | 100 | 每线程请求数 |
+
+压测结果指标：
+- 总请求数
+- 成功数
+- 失败数
+- 成功率
+- 总耗时
+- QPS（每秒请求数）
+
 ## 注意事项
 
 1. 确保 Docker 服务正常运行
 2. 修改配置文件中的 IP 地址为实际服务器地址
 3. Kafka 需提前创建 `seckill_orders` 主题
 4. Redis 建议开启持久化配置
+
+## License
+
+MIT License
