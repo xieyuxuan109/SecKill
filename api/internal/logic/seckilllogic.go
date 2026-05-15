@@ -102,6 +102,6 @@ func (l *SeckillLogic) Seckill(req *types.SeckillReq) (resp *types.SeckillResp, 
 
 	return &types.SeckillResp{
 		OrderNo: orderNo,
-		Message: "排队中，请稍后查询订单状态",
+		Message: "下单成功，请稍后查询订单状态",
 	}, nil
 }

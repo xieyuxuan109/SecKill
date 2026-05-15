@@ -11,6 +11,7 @@ type CreateActReq struct {
 }
 
 type CreateActResp struct {
+	Success bool
 }
 
 type OrderStatusReq struct {
