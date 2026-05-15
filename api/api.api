@@ -7,7 +7,9 @@ type (
 		StartAt int64  `json:"startAt"`
 		EndAt   int64  `json:"endAt"`
 	}
-	CreateActResp  {}
+	CreateActResp {
+		ActivityId int64 `json:"activityId"`
+	}
 	SeckillReq {
 		ActivityId int64 `json:"activityId"`
 	}

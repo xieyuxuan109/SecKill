@@ -11,11 +11,11 @@ type CreateActReq struct {
 }
 
 type CreateActResp struct {
-	Success bool
+	ActivityId int64 `json:"activityId"`
 }
 
 type OrderStatusReq struct {
-	OrderNo string `json:"orderNo"`
+	OrderNo string `json:"orderNo" form:"orderNo"`
 }
 
 type OrderStatusResp struct {

@@ -48,5 +48,5 @@ func (l *CreateActLogic) CreateAct(req *types.CreateActReq) (resp *types.CreateA
 	timeKey := fmt.Sprintf("act:time:%d", actId)
 	l.svcCtx.Redis.Hset(timeKey, "start", strconv.FormatInt(req.StartAt*1000, 10))
 	l.svcCtx.Redis.Hset(timeKey, "end", strconv.FormatInt(req.EndAt*1000, 10))
-	return &types.CreateActResp{Success: true}, nil
+	return &types.CreateActResp{ActivityId: actId}, nil
 }
